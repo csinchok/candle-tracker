@@ -9,7 +9,14 @@
 		.marker {
 			position: absolute;
 			background-color: rgba(255, 0, 0, 0.1);
-			width: 2px;
+			z-index: 2;
+		}
+
+		.mark {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			background-color: rgba(255, 0, 0, 1.0);
 			z-index: 2;
 		}
 		#candle {
@@ -21,15 +28,15 @@
 	</head>
 	<body>
 		<div id="wrapper">
-		<video id="candle" autoplay width="600" muted controls>
+<!-- 		<video id="candle" autoplay width="600" muted controls>
 			<source src="candle-small.mp4" type="video/mp4">
-		</video>
-		<!--
-		<img src="./candle.jpg" id="candle" width="600" />
-		-->
+		</video> -->
+		
+			<img src="./candle.jpg" id="candle" width="600" height="337" />
+		
 		</div>
 
-		<script src="./node_modules/tracking/build/tracking-min.js"></script>
+		<script src="../node_modules/tracking/build/tracking-min.js"></script>
 		<script>
 
 		var Flame = function() {
@@ -37,34 +44,123 @@
 			this.x1 = null;
 			this.y0 = null;
 			this.y1 = null;
+
+			this.start = [0, 0]
 		}
 
-		// Flame.prototype.grow(pixels, width, height, x, y) {
+		var offsets = [
 
-		// 	var val = pixels[(y * width) + x)];
+			// [0, 1],
+			// [-1, 1],
+			// [-1, 0],
+			// [-1, -1],
+			// [0, -1],
+			// [1, -1],
+			// [1, 0],
+			// [1, 1],
 
-		// 	if (val > 200) {
-		// 		// Still part of the flame!
+			[0, -1],
+			[1, -1],
+			[1, 0],
+			[1, 1],
+			[0, 1],
+			[-1, 1],
+			[-1, 0],
+			[-1, -1]
+		];
 
-		// 		// Update the bounds
-		// 		if (x < this.x0) {
-		// 			this.x0 = x;
-		// 		}
-		// 		if (x > this.x1) {
-		// 			this.x1 = x;
-		// 		}
+		Flame.prototype.walk = function(pixels, width, height, startX, startY) {
 
-		// 		if (y < this.y0) {
-		// 			this.y0 = y;
-		// 		}
-		// 		if (y > this.y1) {
-		// 			this.y1 = y;
-		// 		}
+			this.x0 = startX;
+			this.x1 = startX;
+			this.y0 = startY;
+			this.y1 = startY;
 
-		// 		// Recurse through the other pixels...
-		// 	}
+			var point = {
+				'x': startX,
+				'y': startY
+			};
 
-		// }
+			this.start = {
+				'x': startX,
+				'y': startY
+			};
+
+			var counter = 0;
+			var lastI = 0;
+
+			while (true) {
+				counter++;
+				if (counter > 1000) {
+					console.log('ya fucked up');
+					break;
+				}
+				// We'll do a perimeter walk
+
+				var rect = document.createElement('div');
+				rect.className = 'mark';
+				rect.style.top = point.y + 'px';
+				rect.style.left = point.x + 'px'
+
+				var wrapper = document.getElementById('wrapper');
+				wrapper.appendChild(rect);
+
+				var found = false;
+
+				for(var i=1;i < offsets.length + 1; i++) {
+
+					var offset = offsets[(lastI + i) % offsets.length];
+
+					if ((point.y + offset[1]) > height || (point.x + offset[0]) > width) {
+						continue;
+					}
+
+					var val = pixels[((point.y + offset[1]) * width) + (point.x + offset[0])];
+					// console.log((x + offset[0]) + ',' + (y + offset[1]) + ': ' + val);
+
+					if (val > 200) {
+						lastI = i;
+						// if (point.y < 100) {
+						// 	console.log(point);
+						// }
+						// Looks like it's good!
+						point.x += offset[0];
+						point.y += offset[1];
+						
+
+
+
+						// Update the bounds
+						if (point.x < this.x0) {
+							this.x0 = point.x;
+						}
+						if (point.x > this.x1) {
+							this.x1 = point.x;
+						}
+
+						if (point.y < this.y0) {
+							this.y0 = point.y;
+						}
+						if (point.y > this.y1) {
+							this.y1 = point.y;
+						}
+						found = true;
+
+						break;
+					}
+				}
+				if (!found) {
+					// Something terrible happened. We should never get to the end...
+					break;
+				}
+
+				if (this.start.x === point.x && this.start.y === point.y) {
+					console.log('back to the start!');
+					break;
+				}
+			}
+
+		}
 
 		var CandleTracker = function(options) {
 
@@ -86,14 +182,6 @@
 				var x = middle;
 
 				var flames = [];
-				/*
-					{
-						top: xx,
-						left: xx,
-						right: xx
-						bottom: xx
-					}
-				*/
 
 				var flameRange = {
 					min: 50,
@@ -101,6 +189,7 @@
 				}
 
 				while(x > 0 && x < width) {
+
 					x = middle + offset;
 
 					// #FFFFFB
@@ -118,21 +207,33 @@
 
 							if (((y - start) / height) > 0.25) {
 								// Anything that goes higher than 40% of the screen is probably not a flame?
-
 								break; // Fast out...
 							}
 							if (val < 120 ) {
+								if ((y - start) < 10) {
+									break;
+								}
+
 								// Flame has ended?
-								// this._check(gray, width, height, x, y);
+								var flame = new Flame();
+								flame.walk(gray, width, height, x, start);
 
-								var rect = document.createElement('div');
-								rect.className = 'marker';
-								rect.style.top = start + 'px';
-								rect.style.left = x + 'px'
-								rect.style.height = (y - start) + 'px';
+								if (flame.y0 < 100) {
+									console.log(flame);
 
-								var wrapper = document.getElementById('wrapper');
-								wrapper.appendChild(rect);
+									return;
+
+									// var rect = document.createElement('div');
+									// rect.className = 'marker';
+									// rect.style.top = flame.y0 + 'px';
+									// rect.style.left = flame.x0 + 'px'
+									// rect.style.width = flame.x1 - flame.x0 + 'px';
+									// rect.style.height = flame.y1 - flame.y0 + 'px';
+
+									// var wrapper = document.getElementById('wrapper');
+									// wrapper.appendChild(rect);
+								}
+
 								break;
 							}
 						}
@@ -149,42 +250,6 @@
 
 				}
 				return;
-
-			}
-
-			CandleTracker.prototype._check = function(pixels, width, height, x, y) {
-
-				// Find the tip....
-				var val = pixels[((y * width) + x)];
-
-
-				var flame = {
-					x0: x,
-					y0: y,
-					x1: x,
-					y1: 0
-				};
-
-				// while(true) {
-				// 	// Check the three pixels above this one
-
-				// 	var offset = 0;
-
-				// 	[0, -1, 1].forEach(function(i) {
-				// 		val = pixels[(((flame.tip - 1) * width) + (x + i))];
-				// 		if (val > this.flameCutoff) {
-				// 			flame.tip = [(x + i), flame.tip - 1];
-				// 		}
-				// 	});
-
-				// 	for (var i=-1;i<=1;i++) {
-				// 		val = pixels[(((flame.tip - 1) * width) + (x + i))];
-				// 		if (val > this.flameCutoff) {
-				// 			flame.tip = [(x + i), flame.tip - 1];
-				// 		}
-				// 	}
-
-				// }
 
 			}
 		}
