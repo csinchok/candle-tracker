@@ -12,28 +12,43 @@ body {
 
 .call-to-action {
 	position: absolute;
-	top: calc(50% - 50px);
-	height: 100px;
-	left: 15%;
+	bottom: 25px;
+	width: 400px;
+	left: calc(50% - 200px);
 }
 
 .call-to-action .logo {
-	max-height: 100px;
+	width: 100px;
+	float: left;
 }
 
 .call-to-action .begin-session {
 	background-color: #96C1E9;
 	color: white;
-	font-size: 45px;
+	font-size: 24px;
 	text-align: center;	
 	border-radius: 15px;
-	margin-left: 30px;
-	height: 100px;
-	line-height: 100px;
+	line-height: 40px;
+	padding-top: 10px;
 	border: none;
+	margin-left: 25px;
+	height: 100px;
+	width: 275px;
+	float: left;
 }
 
 /* end slider shit */
+
+.candle-btn {
+	background-color: #96C1E9;
+	border: none;
+}
+
+.candle-btn:hover {
+	background-color: #638EB6;
+	border: none;
+}
+
 
 .candle-window {
 	margin-top: 75px;

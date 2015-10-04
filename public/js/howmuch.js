@@ -128,7 +128,7 @@ HowMuch.prototype.init = function() {
   for (var name in window.user.candles) {
     var candle = window.user.candles[name];
     var el = document.createElement('li');
-    el.innerHTML = '<button class="btn btn-success">Use "' + name + '" (' + candle.howMuch().toFixed(5) + '%)</button>';
+    el.innerHTML = '<button class="btn candle-btn">Use "' + name + '" (' + candle.howMuch().toFixed(5) + '%)</button>';
 
     el.children[0].onclick = function() {
       self.watch(candle);
