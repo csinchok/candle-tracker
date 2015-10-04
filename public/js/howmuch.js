@@ -10,6 +10,8 @@ var HowMuch = function() {
 
   this.lastFrame = null;
 
+  this.missingTime = 0;
+
   var self = this;
 
   this.tracker = new tracking.CandleTracker();
@@ -28,8 +30,28 @@ HowMuch.prototype.currentCandles = function() {
   })
 }
 
+HowMuch.prototype.stolen = function() {
+  this.started = null;
+  this.candle = null;
+  
+  var overlayEl = document.querySelectorAll('.camera-window .overlay')[0];
+  overlayEl.style.display = 'block';
+
+  var overlayTitleEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
+  overlayTitleEl.innerHTML = 'Candle has been stolen!';
+
+  document.querySelectorAll('.camera-window video')[0].style.display = 'none';
+
+  var stopButton = document.querySelectorAll('.stop-candle')[0];
+  stopButton.disabled = true;
+}
+
 HowMuch.prototype.ontrack = function(event) {
   var self = this;
+
+  if (this.missingTime > 7 && this.started) {
+    this.stolen();
+  }
 
   this.flames.forEach(function(flame){
     flame.missing += 1;
@@ -78,8 +100,12 @@ HowMuch.prototype.ontrack = function(event) {
 
   if (this.currentCandles().length === 0) {
     overlayEl.style.display = 'block';
+    if (this.started) {
+      this.missingTime += ((Date.now() - this.lastFrame) / 1000);
+    }
   } else if (this.started) {
     overlayEl.style.display = 'none';
+    this.missingTime = 0;
   }
 
   var i = this.flames.length;
