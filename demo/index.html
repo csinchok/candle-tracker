@@ -43,15 +43,18 @@
             </video> -->
 <!--             <img id="candle" src="./candle-still-3.jpg" width="540" height="360" />
  -->         
-            <video id="candle" width="1280" height="720" preload autoplay loop muted></video>
+            <video id="candle" width="640" height="360" preload autoplay loop muted></video>
 
-            <canvas id="canvas" width="1280" height="720"></canvas>
+            <canvas id="canvas" width="640" height="360"></canvas>
         </div>
         
         <script src="../node_modules/tracking/build/tracking.js"></script>
         <script src="js/flame.js"></script>
         <script src="js/candle-tracker.js"></script>
+        <script src="js/candle.js"></script>
         <script>
+        var flames = [];
+        var debug = true;
             var canvas = document.getElementById('canvas');
             var context = canvas.getContext('2d');
             context.fillStyle = "#FF0000";
@@ -59,11 +62,49 @@
 
             var tracker = new tracking.CandleTracker();
 
-            console.log(tracking.CandleTracker);
             tracker.on('track', function(event) {
-                event.data.forEach(function(rect) {
-                  context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                });
+
+                flames.forEach(function(flame){
+                    flame.missing += 1;
+                })
+
+                for(var i=0;i<event.data.length;i++) {
+                    var newFlame = new Flame(event.data[i]);
+
+                    var found = false;
+                    flames.forEach(function(flame){
+                        if (flame.overlaps(newFlame)) {
+                            flame.rect = newFlame.rect;
+                            flame.missing = 0;
+                            flame.present++;
+                            found = true;
+                        }
+                    });
+                    if(!found) {
+                        flames.push(newFlame);
+                    }
+                }
+
+                if (debug) {
+                    flames.forEach(function(flame) {
+                        if(flame.present > 5) {
+                            context.strokeRect(flame.rect.x, flame.rect.y, flame.rect.width, flame.rect.height);
+                        }
+                    });
+                    if (flames.length === 0) {
+                        document.getElementsByTagName('body')[0].style.backgroundColor = 'red';
+                    } else {
+                        document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
+                    }
+                }
+
+                var i = flames.length;
+                while(i--){
+                    if (flames[i].missing > 10) {
+                        flames.splice(i, 1);
+                    }
+                }
+
             });
 
             tracking.track('#candle', tracker, {camera: true});

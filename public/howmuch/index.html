@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>How much?</title>
+
+        <meta charset="utf-8">
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <style>
+        	.camera-window {
+        		width: 640px;
+        		height: 360px;
+        		margin: 0 auto;
+        	}
+
+	        canvas {
+	            top: 0;
+	            left: 0;
+	            right: 0;
+	            bottom: 0;
+	            pointer-events: none;
+	        }
+        </style>
+    </head>
+    <body>
+
+    	<div class="container">
+
+    		<div class="camera-window">
+            	<video id="candle" width="640" height="360" preload autoplay loop muted></video>
+            	<canvas id="canvas" width="640" height="360"></canvas>
+    		</div>
+
+    	</div>
+
+        <script src="../js/tracking-min.js"></script>
+        <script src="../js/flame.js"></script>
+        <script src="../js/candle-tracker.js"></script>
+        <script src="../js/candle.js"></script>
+        <script src="../js/howmuch.js"></script>
+    </body>
+</html>
