@@ -49,7 +49,7 @@ HowMuch.prototype.ontrack = function(event) {
         if (self.started && flame.isCandle) {
           self.candle.burnTime += (Date.now() - self.lastFrame) / 1000;
 
-          self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(4) + '%';
+          self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(5) + '%';
           self.statEls.burnTime.innerHTML = self.candle.formattedBurnTime();
           self.statEls.remainingTime.innerHTML = self.candle.remainingTime();
         }
@@ -102,13 +102,29 @@ HowMuch.prototype.init = function() {
   for (var name in window.user.candles) {
     var candle = window.user.candles[name];
     var el = document.createElement('li');
-    el.innerHTML = '<button class="btn btn-success">Use "' + name + '"</button>';
+    el.innerHTML = '<button class="btn btn-success">Use "' + name + '" (' + candle.howMuch().toFixed(5) + '%)</button>';
 
     el.children[0].onclick = function() {
       self.watch(candle);
     }
 
     candleList.insertBefore(el, orLi);
+  }
+
+  var addButton = document.querySelectorAll('.candle-list .add button')[0];
+  var colorEl = document.querySelectorAll('.candle-list .color select')[0];
+  var nameEl = document.querySelectorAll('.candle-list .name input')[0];
+  addButton.onclick = function() {
+    var color = colorEl.value;
+    var name = nameEl.value;
+
+    if (color !== '-- Select Color --' && name) {
+      var newCandle = new Candle({
+        'name': color + ' ' + name
+      });
+
+      self.watch(newCandle);
+    }
   }
 
   var overlayEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
@@ -151,7 +167,7 @@ HowMuch.prototype.watch = function(candle) {
     stopButton.disabled = true;
   }
 
-  self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(1) + '%';
+  self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(5) + '%';
   self.statEls.burnTime.innerHTML = self.candle.formattedBurnTime();
   self.statEls.remainingTime.innerHTML = self.candle.remainingTime();
 }
