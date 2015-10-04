@@ -11,6 +11,7 @@
 
     <title>How Much</title>
 
+    <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../css/main.css">
 
@@ -29,17 +30,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">How Much Of Candle</a>
+                <a class="navbar-brand" href="/">How Much Of Candle</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li>
-                        <a href="#">About</a>
-                    </li>
-                    <li>
-                        <a href="/howmuch">How Much</a>
-                    </li>
+
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -52,29 +48,35 @@
 
 
 		<div class="row candle-window col-md-8 col-md-push-2">
-			<h1>Please choose candle</h1>
 			<ul class="candle-list">
+				<li class="or">OR</li>
 
-				<li class="add">
-					<select class="color">
-						<option>Red</option>
-						<option>Other</option>
-					</select>
-					<input type="text" placeholder="Name Candle" />
-					<button>Add</button>
+				<li class="add form-inline">
+					<div class="form-group color">
+						<select class="color form-control">
+							<option value="-">-- Select Color --</option>
+							<option value="Red">Color: Red</option>
+							<option value="Other">Color: Other</option>
+						</select>
+					</div>
+					<div class="form-group name">
+						<input type="text" class="form-control" placeholder="Name Candle" />
+					</div>
+					<div class="form-group button">
+						<button class="btn btn-success">Add Candle</button>
+					</div>
 				</li>
 			</ul>
 		</div>
 
 		<div class="row camera-window col-md-8 col-md-push-2">
-			<h3>
-				How much of "<span class="candle-name"></span>"?
-			</h3>
+			<h2>
+				"<span class="candle-name"></span>" has <span class="percentage"></span> remaining
+			</h2>
 
 			<div class="stats">
-				<div class="percentage"></div>
-				<div class="burn-time"></div>
-				<div class="remaining-time"></div>
+				<div>Burned time: <span class="burn-time"></span></div>
+				<div>Remaining time: <span class="remaining-time"></span></div>
 			</div>
 
 			<h4 class="candle-percentage"></h4>
@@ -87,10 +89,10 @@
 
             	<div class="overlay">
             		<h3>Set up Candle</h3>
-            		<button class="btn">I have set it up.</button>
+            		<button class="btn btn-success">I have set it up.</button>
             	</div>
         	</div>
-        	<button class="btn stop-candle">
+        	<button class="btn btn-danger stop-candle">
         		Stop Candle Session
         	</button>
 		</div>

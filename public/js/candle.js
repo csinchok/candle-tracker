@@ -29,7 +29,7 @@ User.prototype.save = function() {
 var Candle = function(data) {
 	this.name = data.name;
 
-	this.burnTime = 0;
+	this.burnTime = data.burnTime || 0;
 
 	if (window.user) {
 		window.user.candles[this.name] = this;
@@ -59,8 +59,6 @@ Candle.prototype.formattedTime_ = function(seconds) {
 	if (minutes) {
 		if (hours) {
 			fmt += ', ';
-		} else {
-			fmt += ' and ';
 		}
 		fmt += (minutes + ' minutes');
 	}
@@ -74,7 +72,7 @@ Candle.prototype.formattedTime_ = function(seconds) {
 }
 
 Candle.prototype.howMuch = function() {
-	return this.burnTime / (60 * 60 * 6);
+	return 100 - (this.burnTime / (60 * 60 * 6));
 }
 
 Candle.prototype.remainingTime = function() {

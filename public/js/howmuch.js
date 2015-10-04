@@ -49,7 +49,7 @@ HowMuch.prototype.ontrack = function(event) {
         if (self.started && flame.isCandle) {
           self.candle.burnTime += (Date.now() - self.lastFrame) / 1000;
 
-          self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(1) + '%';
+          self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(4) + '%';
           self.statEls.burnTime.innerHTML = self.candle.formattedBurnTime();
           self.statEls.remainingTime.innerHTML = self.candle.remainingTime();
         }
@@ -97,18 +97,18 @@ HowMuch.prototype.init = function() {
   // Populate the list...
   var candleList = document.querySelectorAll('.candle-list')[0];
 
-  var addCandleLi = candleList.querySelectorAll('.add')[0];
+  var orLi = candleList.querySelectorAll('.or')[0];
 
   for (var name in window.user.candles) {
     var candle = window.user.candles[name];
     var el = document.createElement('li');
-    el.innerHTML = '<button class="candle-button">' + name + '</button>';
+    el.innerHTML = '<button class="btn btn-success">Use "' + name + '"</button>';
 
     el.children[0].onclick = function() {
       self.watch(candle);
     }
 
-    candleList.insertBefore(el, addCandleLi);
+    candleList.insertBefore(el, orLi);
   }
 
   var overlayEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
@@ -116,7 +116,7 @@ HowMuch.prototype.init = function() {
   setupButton.onclick = function() {
     this.style.display = 'none';
     self.started = true;
-    overlayEl.innerHTML = 'Please Light Candle';
+    overlayEl.innerHTML = 'Please Light Candle On Fire';
   }
 
 }
@@ -144,12 +144,16 @@ HowMuch.prototype.watch = function(candle) {
     var overlayEl = document.querySelectorAll('.camera-window .overlay')[0];
     overlayEl.style.display = 'block';
     var overlayTitleEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
-    overlayTitleEl.innerHTML = 'Thanks for using';
+    overlayTitleEl.innerHTML = 'Candle is resting';
     self.candle = null;
     self.started = false;
 
     stopButton.disabled = true;
   }
+
+  self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(1) + '%';
+  self.statEls.burnTime.innerHTML = self.candle.formattedBurnTime();
+  self.statEls.remainingTime.innerHTML = self.candle.remainingTime();
 }
 
 HowMuch.prototype.stop = function() {
