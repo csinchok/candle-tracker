@@ -239,14 +239,4 @@ HowMuch.prototype.stop = function() {
 window.howmuch = new HowMuch();
 howmuch.init();
 
-// var flames = [];
-// var debug = window.location.search.indexOf('debug') > 0;
-// var canvas = document.getElementById('canvas');
-// var context = canvas.getContext('2d');
-// context.fillStyle = "#FF0000";
-
-
-// var tracker = new tracking.CandleTracker();
-
-
 
