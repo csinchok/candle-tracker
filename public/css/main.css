@@ -10,21 +10,27 @@ body {
 	display: none;
 }
 
-#myCarousel .logo {
+.call-to-action {
 	position: absolute;
-
-	top: calc(50% - 175px);
-	left: 100px;
+	top: calc(50% - 50px);
+	height: 100px;
+	left: 15%;
 }
 
-/*#myCarousel .begin-session {
-	position: absolute;
+.call-to-action .logo {
+	max-height: 100px;
+}
 
-	top: calc(50% - 175px);
-	right: 100px;
+.call-to-action .begin-session {
+	background-color: #96C1E9;
+	color: white;
+	font-size: 45px;
+	text-align: center;	
+	border-radius: 15px;
+	margin-left: 30px;
 	height: 100px;
-	z-index: 10;
-}*/
+	line-height: 100px;
+}
 
 /* end slider shit */
 
