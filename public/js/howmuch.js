@@ -1,55 +1,174 @@
-var flames = [];
-var debug = window.location.search.indexOf('debug') !== 0;
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
-context.fillStyle = "#FF0000";
+var HowMuch = function() {
+  this.flames = [];
+  this.debug = window.location.search.indexOf('debug') > 0;
 
+  this.canvas = document.getElementById('canvas');
+  this.context = canvas.getContext('2d');
 
-var tracker = new tracking.CandleTracker();
+  this.candle = null;
+  this.started = false;
 
-tracker.on('track', function(event) {
+  this.lastFrame = null;
 
-  flames.forEach(function(flame){
-      flame.missing += 1;
+  var self = this;
+
+  this.tracker = new tracking.CandleTracker();
+  this.tracker.on('track', function(event) {self.ontrack(event)});
+
+  this.statEls = {
+    percentage: document.querySelectorAll('.percentage')[0],
+    burnTime: document.querySelectorAll('.burn-time')[0],
+    remainingTime: document.querySelectorAll('.remaining-time')[0]
+  }
+}
+
+HowMuch.prototype.currentCandles = function() {
+  return this.flames.filter(function(flame) {
+    return flame.isCandle;
   })
+}
+
+HowMuch.prototype.ontrack = function(event) {
+  var self = this;
+
+  this.flames.forEach(function(flame){
+    flame.missing += 1;
+  });
 
   for(var i=0;i<event.data.length;i++) {
     var newFlame = new Flame(event.data[i]);
 
     var found = false;
-    flames.forEach(function(flame){
+    this.flames.forEach(function(flame){
       if (flame.overlaps(newFlame)) {
         flame.rect = newFlame.rect;
         flame.missing = 0;
         flame.present++;
         found = true;
+
+        if (self.started && flame.isCandle) {
+          self.candle.burnTime += (Date.now() - self.lastFrame) / 1000;
+
+          self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(1) + '%';
+          self.statEls.burnTime.innerHTML = self.candle.formattedBurnTime();
+          self.statEls.remainingTime.innerHTML = self.candle.remainingTime();
+        }
       }
     });
     if(!found) {
-      flames.push(newFlame);
+      if (this.started && this.candle && this.currentCandles().length === 0) {
+        newFlame.isCandle = true;  // Must be a new candle!
+      }
+
+      this.flames.push(newFlame);
     }
   }
 
-  if (debug) {
-    flames.forEach(function(flame) {
+  if (this.debug) {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.flames.forEach(function(flame) {
       if(flame.present > 5) {
-        context.strokeRect(flame.rect.x, flame.rect.y, flame.rect.width, flame.rect.height);
+        self.context.strokeRect(flame.rect.x, flame.rect.y, flame.rect.width, flame.rect.height);
       }
     });
-    if (flames.length === 0) {
-      document.getElementsByTagName('body')[0].style.backgroundColor = 'red';
-    } else {
-      document.getElementsByTagName('body')[0].style.backgroundColor = 'white';
-    }
   }
 
-  var i = flames.length;
+  var overlayEl = document.querySelectorAll('.camera-window .overlay')[0];
+
+  if (this.currentCandles().length === 0) {
+    overlayEl.style.display = 'block';
+  } else if (this.started) {
+    overlayEl.style.display = 'none';
+  }
+
+  var i = this.flames.length;
   while(i--){
-    if (flames[i].missing > 10) {
-      flames.splice(i, 1);
+    if (this.flames[i].missing > 10) {
+      this.flames.splice(i, 1);
     }
   }
+  this.lastFrame = Date.now();
+}
 
-});
+HowMuch.prototype.init = function() {
+  var self = this;
 
-tracking.track('#candle', tracker, {camera: true});
+  // Populate the list...
+  var candleList = document.querySelectorAll('.candle-list')[0];
+
+  var addCandleLi = candleList.querySelectorAll('.add')[0];
+
+  for (var name in window.user.candles) {
+    var candle = window.user.candles[name];
+    var el = document.createElement('li');
+    el.innerHTML = '<button class="candle-button">' + name + '</button>';
+
+    el.children[0].onclick = function() {
+      self.watch(candle);
+    }
+
+    candleList.insertBefore(el, addCandleLi);
+  }
+
+  var overlayEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
+  var setupButton = document.querySelectorAll('.camera-window .overlay > button')[0];
+  setupButton.onclick = function() {
+    this.style.display = 'none';
+    self.started = true;
+    overlayEl.innerHTML = 'Please Light Candle';
+  }
+
+}
+
+HowMuch.prototype.watch = function(candle) {
+  var self = this;
+  tracking.track('#candle', this.tracker, {camera: true});
+  this.candle = candle;
+
+  // Setup the candle deets
+  var candleNameEl = document.querySelectorAll('.camera-window .candle-name')[0];
+  candleNameEl.innerHTML = candle.name;
+
+  var candleWindow = document.querySelectorAll('.candle-window')[0];
+  candleWindow.style.display = 'none';
+
+  var cameraWindow = document.querySelectorAll('.camera-window')[0];
+  cameraWindow.style.display = 'block';
+
+  var stopButton = document.querySelectorAll('.stop-candle')[0];
+  stopButton.onclick = function() {
+    window.user.candles[self.candle.name] = self.candle
+    window.user.save()
+
+    var overlayEl = document.querySelectorAll('.camera-window .overlay')[0];
+    overlayEl.style.display = 'block';
+    var overlayTitleEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
+    overlayTitleEl.innerHTML = 'Thanks for using';
+    self.candle = null;
+    self.started = false;
+
+    stopButton.disabled = true;
+  }
+}
+
+HowMuch.prototype.stop = function() {
+  this.candle = null;
+}
+
+window.howmuch = new HowMuch();
+howmuch.init();
+
+
+
+// var flames = [];
+// var debug = window.location.search.indexOf('debug') > 0;
+// var canvas = document.getElementById('canvas');
+// var context = canvas.getContext('2d');
+// context.fillStyle = "#FF0000";
+
+
+// var tracker = new tracking.CandleTracker();
+
+
+

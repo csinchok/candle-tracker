@@ -26,63 +26,65 @@ User.prototype.save = function() {
 }
 
 
-var Session = function(data) {
-	this.candleName = data.candleName;
-
-	this.startTime = data.startTime;
-	this.endTime = data.endTime;
-}
-
-Session.prototype.start = function(candleName) {
-	this.startTime = Date.now();
-	this.candleName = candleName;
-}
-
-Session.prototype.stop = function() {
-	this.endTime = Date.now();
-	window.user.candles[this.candleName].sessions.push(this.export());
-}
-
-Session.prototype.export = function() {
-	return {
-		startTime: this.startTime,
-		candleName: this.candleName,
-		endTime: this.endTime
-	}
-}
-
 var Candle = function(data) {
 	this.name = data.name;
 
-	this.sessions = [];
-
-	if (data.sessions) {
-		data.sessions.forEach(function(sessionData) {
-			this.sessions.push(new Session(sessionData))
-		});
-	}
+	this.burnTime = 0;
 
 	if (window.user) {
 		window.user.candles[this.name] = this;
 	}
 }
 
-Candle.prototype.getBurnTime = function() {
-	var time = 0;
-	this.sessions.forEach(function(session){
-		time += (session.endTime - session.startTime);
-	});
-	return time;
+Candle.prototype.formattedBurnTime = function() {
+	return this.formattedTime_(this.burnTime);
+}
+
+Candle.prototype.formattedTime_ = function(seconds) {
+	var hours = 0;
+	var minutes = 0;
+
+	if (seconds > (60 * 60)) {
+		hours = (seconds - (seconds % (60 * 60))) / (60 * 60);
+		seconds = seconds % (60 * 60)
+	}
+	if (seconds > 60) {
+		minutes = (seconds - (seconds % 60)) / 60
+		seconds = seconds % 60
+	}
+	var fmt = '';
+	if (hours) {
+		fmt += (hours + ' hours');
+	}
+	if (minutes) {
+		if (hours) {
+			fmt += ', ';
+		} else {
+			fmt += ' and ';
+		}
+		fmt += (minutes + ' minutes');
+	}
+	if (seconds) {
+		if (minutes) {
+			fmt += ' and ';
+		}
+		fmt += (Math.round(seconds) + ' seconds');
+	}
+	return fmt;
+}
+
+Candle.prototype.howMuch = function() {
+	return this.burnTime / (60 * 60 * 6);
+}
+
+Candle.prototype.remainingTime = function() {
+	return this.formattedTime_((60 * 60 * 6) - this.burnTime);
 }
 
 Candle.prototype.export = function() {
-	var sessionData = [];
-	this.sessions.forEach(function(session){
-		sessionData.push(session.export())
-	})
 	return {
 		name: this.name,
-		sessions: this.sessions
+		burnTime: this.burnTime
 	}
 }
 

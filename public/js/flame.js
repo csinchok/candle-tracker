@@ -1,7 +1,13 @@
-var Flame = function (rect) {
+var Flame = function (rect, isCandle) {
   this.rect = rect;
   this.missing = 0;
   this.present = 0;
+
+  if (isCandle) {
+    this.isCandle = true;
+  } else {
+    this.isCandle = false;
+  }
 };
 
 Flame.prototype.overlaps = function(flame, cutoff) {

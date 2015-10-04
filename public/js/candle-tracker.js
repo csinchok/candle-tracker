@@ -215,7 +215,6 @@
     var self = this;
 
     pixels = tracking.Image.blur(pixels, width, height, 12);
-    context.clearRect(0, 0, canvas.width, canvas.height);
 
     var results = self.trackColor_(pixels, width, height);
 

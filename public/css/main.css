@@ -1,0 +1,125 @@
+/* global stuff */
+
+body {
+	font-family: 'Varela Round', sans-serif;
+}
+
+
+/* slider shit */
+.carousel-indicators {
+	display: none;
+}
+
+#myCarousel .logo {
+	position: absolute;
+
+	top: calc(50% - 175px);
+	left: 100px;
+}
+
+/*#myCarousel .begin-session {
+	position: absolute;
+
+	top: calc(50% - 175px);
+	right: 100px;
+	height: 100px;
+	z-index: 10;
+}*/
+
+/* end slider shit */
+
+.candle-window {
+	margin-top: 75px;
+	border: 1px solid black;
+}
+
+.candle-window > h1 {
+	padding: 10px;
+}
+
+.candle-window > ul {
+	list-style-type: none;
+	padding: 10px;
+	margin: 0;
+}
+
+.candle-window .candle-button {
+	width: 100%;
+	height: 45px;
+}
+
+.candle-list .add select {
+	height: 45px;
+	width: 25%;
+}
+.candle-list .add input {
+	height: 45px;
+	width: 50%;
+}
+.candle-list .add button {
+	height: 45px;
+	width: 22%;
+}
+
+
+.camera-window {
+	margin-top: 75px;
+	display: none;
+	position: relative;
+	border: 1px solid black;
+}
+
+.camera-window > .viewer {
+	position: relative;
+	margin: 0 auto;
+}
+
+.camera-window > .viewer > .pushdown {
+	position: relative;
+  	width: 100%;
+  	padding-top: 56.25%;
+}
+
+.camera-window video {
+	position: absolute;
+  	top: 0;
+  	left: 0;
+    
+    width: 100%    !important;
+    height: auto   !important;
+}
+
+.camera-window canvas {
+	position: absolute;
+  	top: 0;
+  	left: 0;
+
+    width: 100%    !important;
+    height: auto   !important;
+    pointer-events: none;
+}
+
+.camera-window .overlay {
+	position: absolute;
+	top: 25px;
+	right: 25px;
+	bottom: 25px;
+	left: 25px;
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 10px;
+	padding: 20px;
+}
+
+.camera-window .overlay > h3 {
+	text-align: center;
+	width: 100%;
+	font-size: 35px;
+	color: white;
+}
+
+.camera-window .overlay > button {
+	margin: 0 auto;
+	width: 100%;
+	height: 45px;
+	font-size: 25px;
+}
