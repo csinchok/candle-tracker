@@ -17,7 +17,11 @@ User.prototype.save = function() {
 		candles: {}
 	};
 	for(var name in this.candles) {
-		data.candles[name] = this.candles[name].export();
+		if (this.candles[name].export) {
+			data.candles[name] = this.candles[name].export();
+		} else {
+			console.log(this.candles[name]);
+		}
 	}
 
 	console.log(JSON.stringify(data));

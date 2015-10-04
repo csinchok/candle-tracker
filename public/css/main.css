@@ -189,3 +189,13 @@ body {
 	height: 45px;
 	font-size: 25px;
 }
+
+.ui-pnotify {
+	top: 75px;
+	z-index: 10;
+}
+
+.brighttheme-error {
+    background-image: none;
+    background-color: #F2DEDE;
+}

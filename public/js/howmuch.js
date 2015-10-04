@@ -31,8 +31,6 @@ HowMuch.prototype.currentCandles = function() {
 }
 
 HowMuch.prototype.stolen = function() {
-  this.started = null;
-  this.candle = null;
   
   var overlayEl = document.querySelectorAll('.camera-window .overlay')[0];
   overlayEl.style.display = 'block';
@@ -45,8 +43,17 @@ HowMuch.prototype.stolen = function() {
   var stopButton = document.querySelectorAll('.stop-candle')[0];
   stopButton.disabled = true;
 
-  window.user.candles[self.candle.name] = self.candle
+  window.user.candles[this.candle.name] = self.candle
   window.user.save()
+
+  var audio = new Audio('/sounds/siren.wav');
+  audio.play()
+  audio.onload = function() {
+    this.play()
+  }
+
+  this.started = null;
+  this.candle = null;
 }
 
 HowMuch.prototype.ontrack = function(event) {
@@ -54,6 +61,15 @@ HowMuch.prototype.ontrack = function(event) {
 
   if (this.missingTime > 7 && this.started) {
     this.stolen();
+  }
+
+  if (this.missingTime < 3 && (this.missingTime + ((Date.now() - this.lastFrame) / 1000)) > 3 && this.started) {
+    new PNotify({
+      title: 'Has your candle been stolen?',
+      text: 'Please check your candle. It seems to have gone missing.',
+      type: 'error',
+      icon: false
+    });
   }
 
   this.flames.forEach(function(flame){
@@ -147,10 +163,11 @@ HowMuch.prototype.init = function() {
   for (var name in window.user.candles) {
     var candle = window.user.candles[name];
     var el = document.createElement('li');
-    el.innerHTML = '<button class="btn candle-btn">"' + name + '" <span>(' + candle.howMuch().toFixed(1) + '%)</span></button>';
+    el.innerHTML = '<button class="btn candle-btn" data-name="' + candle.name + '">"' + name + '" <span>(' + candle.howMuch().toFixed(1) + '%)</span></button>';
 
     el.children[0].onclick = function() {
-      self.watch(candle);
+      var c = user.candles[this.dataset.name]
+      self.watch(c);
     }
 
     candleList.insertBefore(el, orLi);
@@ -223,8 +240,6 @@ HowMuch.prototype.stop = function() {
 
 window.howmuch = new HowMuch();
 howmuch.init();
-
-
 
 // var flames = [];
 // var debug = window.location.search.indexOf('debug') > 0;
