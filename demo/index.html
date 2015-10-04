@@ -1,262 +1,72 @@
 <html>
-	<head>
-		<title>Candlert</title>
-		<style>
-		#wrapper {
-			margin: 0;
-			padding: 0;
-		}
-		.marker {
-			position: absolute;
-			background-color: rgba(255, 0, 0, 0.1);
-			z-index: 2;
-		}
+    <head>
+        <title>Candlert</title>
+        <style>
+        #wrapper {
+            margin: 0;
+            padding: 0;
+        }
+        .marker {
+            position: absolute;
+            border: 1px solid red;
+            padding: 2px;
+            z-index: 2;
+        }
 
-		.mark {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			background-color: rgba(255, 0, 0, 1.0);
-			z-index: 2;
-		}
-		#candle {
-		    position: absolute;
-		    top: 0;
-		    left: 0;
-		}
-		</style>
-	</head>
-	<body>
-		<div id="wrapper">
-<!-- 		<video id="candle" autoplay width="600" muted controls>
-			<source src="candle-small.mp4" type="video/mp4">
-		</video> -->
-		
-			<img src="./candle.jpg" id="candle" width="600" height="337" />
-		
-		</div>
+        .mark {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background-color: rgba(255, 0, 0, 1.0);
+            z-index: 2;
+        }
+        #candle {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+          
+<!--             <video id="candle" autoplay width="540" height="360" muted controls loop>
+                <source src="test_candle_2.mov" type="video/mp4">
+            </video> -->
+<!--             <img id="candle" src="./candle-still-3.jpg" width="540" height="360" />
+ -->         
+            <video id="candle" width="1280" height="720" preload autoplay loop muted></video>
 
-		<script src="../node_modules/tracking/build/tracking-min.js"></script>
-		<script>
-
-		var Flame = function() {
-			this.x0 = null;
-			this.x1 = null;
-			this.y0 = null;
-			this.y1 = null;
-
-			this.start = [0, 0]
-		}
-
-		var offsets = [
-
-			// [0, 1],
-			// [-1, 1],
-			// [-1, 0],
-			// [-1, -1],
-			// [0, -1],
-			// [1, -1],
-			// [1, 0],
-			// [1, 1],
-
-			[0, -1],
-			[1, -1],
-			[1, 0],
-			[1, 1],
-			[0, 1],
-			[-1, 1],
-			[-1, 0],
-			[-1, -1]
-		];
-
-		Flame.prototype.walk = function(pixels, width, height, startX, startY) {
-
-			this.x0 = startX;
-			this.x1 = startX;
-			this.y0 = startY;
-			this.y1 = startY;
-
-			var point = {
-				'x': startX,
-				'y': startY
-			};
-
-			this.start = {
-				'x': startX,
-				'y': startY
-			};
-
-			var counter = 0;
-			var lastI = 0;
-
-			while (true) {
-				counter++;
-				if (counter > 1000) {
-					console.log('ya fucked up');
-					break;
-				}
-				// We'll do a perimeter walk
-
-				var rect = document.createElement('div');
-				rect.className = 'mark';
-				rect.style.top = point.y + 'px';
-				rect.style.left = point.x + 'px'
-
-				var wrapper = document.getElementById('wrapper');
-				wrapper.appendChild(rect);
-
-				var found = false;
-
-				for(var i=1;i < offsets.length + 1; i++) {
-
-					var offset = offsets[(lastI + i) % offsets.length];
-
-					if ((point.y + offset[1]) > height || (point.x + offset[0]) > width) {
-						continue;
-					}
-
-					var val = pixels[((point.y + offset[1]) * width) + (point.x + offset[0])];
-					// console.log((x + offset[0]) + ',' + (y + offset[1]) + ': ' + val);
-
-					if (val > 200) {
-						lastI = i;
-						// if (point.y < 100) {
-						// 	console.log(point);
-						// }
-						// Looks like it's good!
-						point.x += offset[0];
-						point.y += offset[1];
-						
+            <canvas id="canvas" width="1280" height="720"></canvas>
+        </div>
+        
+        <script src="../node_modules/tracking/build/tracking.js"></script>
+        <script src="js/flame.js"></script>
+        <script src="js/candle-tracker.js"></script>
+        <script>
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            context.fillStyle = "#FF0000";
 
 
+            var tracker = new tracking.CandleTracker();
 
-						// Update the bounds
-						if (point.x < this.x0) {
-							this.x0 = point.x;
-						}
-						if (point.x > this.x1) {
-							this.x1 = point.x;
-						}
+            console.log(tracking.CandleTracker);
+            tracker.on('track', function(event) {
+                event.data.forEach(function(rect) {
+                  context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                });
+            });
 
-						if (point.y < this.y0) {
-							this.y0 = point.y;
-						}
-						if (point.y > this.y1) {
-							this.y1 = point.y;
-						}
-						found = true;
-
-						break;
-					}
-				}
-				if (!found) {
-					// Something terrible happened. We should never get to the end...
-					break;
-				}
-
-				if (this.start.x === point.x && this.start.y === point.y) {
-					console.log('back to the start!');
-					break;
-				}
-			}
-
-		}
-
-		var CandleTracker = function(options) {
-
-			options = options || {};
-			this.flameCutoff = options.flameCutoff || 200;
-
-			this.neighbours_ = {};
-
-			CandleTracker.prototype.track = function(pixels, width, height) {
-
-				// Convert to grayscale (for now?)
-				var gray = tracking.Image.grayscale(pixels, width, height, false);
-
-				// Start from the middle....
-				var middle = Math.round(width / 2);
-
-				// Start with an offset of 1
-				var offset = 0;
-				var x = middle;
-
-				var flames = [];
-
-				var flameRange = {
-					min: 50,
-					start: 200
-				}
-
-				while(x > 0 && x < width) {
-
-					x = middle + offset;
-
-					// #FFFFFB
-
-					var start = null;
-
-					for (var y = 0; y < height; y++) {
-						var val = gray[((y * width) + x)];  // From 0 to 255 in grayscale
-
-						if (start === null) {
-							if (val > this.flameCutoff) {
-								start = y;
-							}
-						} else {
-
-							if (((y - start) / height) > 0.25) {
-								// Anything that goes higher than 40% of the screen is probably not a flame?
-								break; // Fast out...
-							}
-							if (val < 120 ) {
-								if ((y - start) < 10) {
-									break;
-								}
-
-								// Flame has ended?
-								var flame = new Flame();
-								flame.walk(gray, width, height, x, start);
-
-								if (flame.y0 < 100) {
-									console.log(flame);
-
-									return;
-
-									// var rect = document.createElement('div');
-									// rect.className = 'marker';
-									// rect.style.top = flame.y0 + 'px';
-									// rect.style.left = flame.x0 + 'px'
-									// rect.style.width = flame.x1 - flame.x0 + 'px';
-									// rect.style.height = flame.y1 - flame.y0 + 'px';
-
-									// var wrapper = document.getElementById('wrapper');
-									// wrapper.appendChild(rect);
-								}
-
-								break;
-							}
-						}
-
-					}
-
-
-					if (offset > 0) {
-						offset++;
-					} else {
-						offset--;
-					}
-					offset *= -1;
-
-				}
-				return;
-
-			}
-		}
-		tracking.inherits(CandleTracker, tracking.Tracker);
-
-		var myTracker = new CandleTracker({flameCutoff: 200});
-		tracking.track('#candle', myTracker);
-		</script>
-	</body>
+            tracking.track('#candle', tracker, {camera: true});
+        </script>
+    </body>
 </html>
