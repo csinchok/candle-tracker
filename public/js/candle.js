@@ -72,7 +72,7 @@ Candle.prototype.formattedTime_ = function(seconds) {
 }
 
 Candle.prototype.howMuch = function() {
-	return 100 - (this.burnTime / (60 * 60 * 6));
+	return (1 - (this.burnTime / (60 * 60 * 6))) * 100;
 }
 
 Candle.prototype.remainingTime = function() {

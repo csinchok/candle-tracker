@@ -25,7 +25,7 @@
    * @default 20
    * @type {number}
    */
-  tracking.CandleTracker.prototype.minDimension = 4;
+  tracking.CandleTracker.prototype.minDimension = 5;
 
   /**
    * Holds the maximum dimension to classify a rectangle.
@@ -235,7 +235,7 @@
    */
   tracking.CandleTracker.prototype.trackColor_ = function(pixels, width, height) {
     var colorFn = function(r, g, b) {
-      return (r > 250 && (g + b) / 2 > 190);
+      return (r > 250 && (g + b) / 2 > 230);
     }
     var currGroup = new Int32Array(pixels.length >> 2);
     var currGroupSize;

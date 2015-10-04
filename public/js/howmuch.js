@@ -44,6 +44,9 @@ HowMuch.prototype.stolen = function() {
 
   var stopButton = document.querySelectorAll('.stop-candle')[0];
   stopButton.disabled = true;
+
+  window.user.candles[self.candle.name] = self.candle
+  window.user.save()
 }
 
 HowMuch.prototype.ontrack = function(event) {
@@ -114,6 +117,22 @@ HowMuch.prototype.ontrack = function(event) {
       this.flames.splice(i, 1);
     }
   }
+  
+  var setupButton = document.querySelectorAll('.camera-window .overlay > button')[0];
+
+  if (!self.started && self.candle) {
+    if (this.flames.length > 1) {
+      setupButton.style.display = 'block';
+      setupButton.disabled = true;
+      setupButton.innerHTML = 'It is not dark enough for candles';
+    } else if (setupButton.disabled) {
+      setupButton.style.display = 'block';
+      setupButton.disabled = false;
+      setupButton.innerHTML = 'I have set it up';
+    }
+  }
+
+
   this.lastFrame = Date.now();
 }
 
@@ -128,7 +147,7 @@ HowMuch.prototype.init = function() {
   for (var name in window.user.candles) {
     var candle = window.user.candles[name];
     var el = document.createElement('li');
-    el.innerHTML = '<button class="btn candle-btn">Use "' + name + '" (' + candle.howMuch().toFixed(5) + '%)</button>';
+    el.innerHTML = '<button class="btn candle-btn">"' + name + '" <span>(' + candle.howMuch().toFixed(1) + '%)</span></button>';
 
     el.children[0].onclick = function() {
       self.watch(candle);

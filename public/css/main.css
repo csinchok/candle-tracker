@@ -71,7 +71,7 @@ body {
 
 .candle-window > ul > li > button {
 	width: 100%;
-	font-size: 24px;
+	font-size: 22px;
 }
 
 .candle-window button {
@@ -81,6 +81,10 @@ body {
 .candle-window .candle-button {
 	width: 100%;
 	height: 45px;
+}
+
+.candle-window .candle-btn span {
+	font-size: 15px;
 }
 
 .candle-list .or {
