@@ -7,8 +7,9 @@ var HowMuch = function() {
 
   this.candle = null;
   this.started = false;
+  this.lit = false;
 
-  this.lastFrame = null;
+  this.lastFrame = Date.now();
 
   this.missingTime = 0;
 
@@ -37,13 +38,16 @@ HowMuch.prototype.stolen = function() {
 
   var overlayTitleEl = document.querySelectorAll('.camera-window .overlay > h3')[0];
   overlayTitleEl.innerHTML = 'Candle has been stolen!';
+  overlayTitleEl.style.color = '#DB524B';
 
   document.querySelectorAll('.camera-window video')[0].style.display = 'none';
 
   var stopButton = document.querySelectorAll('.stop-candle')[0];
-  stopButton.disabled = true;
+  var newSessionButton = document.querySelectorAll('.new-session')[0];
+  stopButton.style.display = 'none';
+  newSessionButton.style.display = 'block';
 
-  window.user.candles[this.candle.name] = self.candle
+  window.user.candles[this.candle.name] = this.candle
   window.user.save()
 
   var audio = new Audio('/sounds/siren.wav');
@@ -59,17 +63,8 @@ HowMuch.prototype.stolen = function() {
 HowMuch.prototype.ontrack = function(event) {
   var self = this;
 
-  if (this.missingTime > 7 && this.started) {
+  if (this.missingTime > 7 && this.lit) {
     this.stolen();
-  }
-
-  if (this.missingTime < 3 && (this.missingTime + ((Date.now() - this.lastFrame) / 1000)) > 3 && this.started) {
-    new PNotify({
-      title: 'Has your candle been stolen?',
-      text: 'Please check your candle. It seems to have gone missing.',
-      type: 'error',
-      icon: false
-    });
   }
 
   this.flames.forEach(function(flame){
@@ -99,8 +94,8 @@ HowMuch.prototype.ontrack = function(event) {
     if(!found) {
       if (this.started && this.candle && this.currentCandles().length === 0) {
         newFlame.isCandle = true;  // Must be a new candle!
+        this.lit = true;
       }
-
       this.flames.push(newFlame);
     }
   }
@@ -202,6 +197,7 @@ HowMuch.prototype.init = function() {
 HowMuch.prototype.watch = function(candle) {
   var self = this;
   tracking.track('#candle', this.tracker, {camera: true});
+  self.lastFrame = Date.now();
   this.candle = candle;
 
   // Setup the candle deets
@@ -215,6 +211,7 @@ HowMuch.prototype.watch = function(candle) {
   cameraWindow.style.display = 'block';
 
   var stopButton = document.querySelectorAll('.stop-candle')[0];
+  var newSessionButton = document.querySelectorAll('.new-session')[0];
   stopButton.onclick = function() {
     window.user.candles[self.candle.name] = self.candle
     window.user.save()
@@ -226,7 +223,8 @@ HowMuch.prototype.watch = function(candle) {
     self.candle = null;
     self.started = false;
 
-    stopButton.disabled = true;
+    stopButton.style.display = 'none';
+    newSessionButton.style.display = 'block';
   }
 
   self.statEls.percentage.innerHTML = self.candle.howMuch().toFixed(5) + '%';
