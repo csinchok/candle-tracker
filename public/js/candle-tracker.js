@@ -235,7 +235,7 @@
    */
   tracking.CandleTracker.prototype.trackColor_ = function(pixels, width, height) {
     var colorFn = function(r, g, b) {
-      return (r > 250 && (g + b) / 2 > 230);
+      return (r > 245 && (g + b) / 2 > 220);
     }
     var currGroup = new Int32Array(pixels.length >> 2);
     var currGroupSize;

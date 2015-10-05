@@ -92,7 +92,7 @@ HowMuch.prototype.ontrack = function(event) {
       }
     });
     if(!found) {
-      if (this.started && this.candle && this.currentCandles().length === 0) {
+      if (this.started && this.candle) {
         newFlame.isCandle = true;  // Must be a new candle!
         this.lit = true;
       }
